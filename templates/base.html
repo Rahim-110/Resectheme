@@ -18,7 +18,7 @@
     />
 
     <!-- Favicon -->
-    <link rel="shortcut icon" href="{{ url_for('views.static', filename='img/favicon.ico') }}" />
+    <link rel="shortcut icon" href="{{ url_for('views.static_theme', path='/img/favicon.ico') }}" />
 
     <!-- CTFd Stylesheets -->
     <link
@@ -106,7 +106,7 @@
 
     <!-- CTFd Scripts (provided by CTFd framework) -->
     {% if request.endpoint and 'static' not in request.endpoint %}
-      <script src="{{ url_for('views.static', filename='js/ctf.js') }}"></script>
+      <script src="{{ url_for('static', filename='js/ctf.js') }}"></script>
     {% endif %}
 
     <!-- Theme Scripts -->
