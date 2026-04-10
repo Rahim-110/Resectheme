@@ -1,0 +1,212 @@
+{% extends "base.html" %}
+
+{% block title %}Challenges - CTFd{% endblock %}
+
+{% block page_description %}Challenges - Test your cybersecurity skills{% endblock %}
+
+{% block content %}
+<style>
+  .challenges-header {
+    margin-bottom: var(--space-8);
+  }
+
+  .challenges-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: var(--space-6);
+    margin-top: var(--space-6);
+  }
+
+  .challenge-card {
+    background: var(--color-background-secondary);
+    border: 1px solid var(--color-border-secondary);
+    border-radius: var(--radius-xl);
+    padding: var(--space-6);
+    cursor: pointer;
+    transition: var(--transition-base);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    min-height: 250px;
+  }
+
+  .challenge-card:hover {
+    box-shadow: var(--shadow-lg);
+    transform: translateY(-4px);
+    border-color: var(--color-accent-purple);
+  }
+
+  .challenge-category {
+    display: inline-block;
+    padding: var(--space-1) var(--space-3);
+    background: var(--color-accent-gradient);
+    color: var(--color-text-inverse);
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-bold);
+    border-radius: var(--radius-full);
+    margin-bottom: var(--space-4);
+    text-transform: uppercase;
+  }
+
+  .challenge-title {
+    font-size: var(--font-size-lg);
+    font-weight: var(--font-weight-bold);
+    margin-bottom: var(--space-3);
+    color: var(--color-text-primary);
+  }
+
+  .challenge-description {
+    color: var(--color-text-secondary);
+    margin-bottom: var(--space-4);
+    flex-grow: 1;
+    font-size: var(--font-size-sm);
+    line-height: var(--line-height-normal);
+  }
+
+  .challenge-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-top: 1px solid var(--color-divider);
+    padding-top: var(--space-4);
+    margin-top: auto;
+  }
+
+  .challenge-score {
+    font-size: var(--font-size-xl);
+    font-weight: var(--font-weight-bold);
+    color: var(--color-accent-purple);
+  }
+
+  .challenge-solves {
+    font-size: var(--font-size-sm);
+    color: var(--color-text-tertiary);
+  }
+
+  .challenge-status {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: #bfdbfe;
+  }
+
+  .challenge-status.solved {
+    background: var(--color-success);
+  }
+
+  .filter-bar {
+    display: flex;
+    gap: var(--space-4);
+    margin-bottom: var(--space-6);
+    flex-wrap: wrap;
+  }
+
+  .filter-btn {
+    padding: var(--space-2) var(--space-4);
+    background: var(--color-background);
+    border: 1px solid var(--color-border-secondary);
+    border-radius: var(--radius-lg);
+    cursor: pointer;
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+    transition: var(--transition-fast);
+  }
+
+  .filter-btn:hover,
+  .filter-btn.active {
+    background: var(--color-accent-gradient);
+    color: var(--color-text-inverse);
+    border-color: transparent;
+  }
+
+  @media (max-width: 576px) {
+    .challenges-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .challenge-card {
+      padding: var(--space-4);
+      min-height: auto;
+    }
+  }
+</style>
+
+<div class="challenges-header">
+  <h1>Challenges</h1>
+  <p style="color: var(--color-text-secondary); margin: var(--space-4) 0 0 0">
+    Test your cybersecurity skills by solving challenges in various categories
+  </p>
+</div>
+
+<!-- Filter Bar -->
+<div class="filter-bar">
+  <button class="filter-btn active" onclick="filterChallenges('')">
+    All Challenges
+  </button>
+  <button class="filter-btn" onclick="filterChallenges('Cryptography')">
+    Cryptography
+  </button>
+  <button class="filter-btn" onclick="filterChallenges('Web')">
+    Web
+  </button>
+  <button class="filter-btn" onclick="filterChallenges('Binary')">
+    Binary Exploitation
+  </button>
+  <button class="filter-btn" onclick="filterChallenges('Forensics')">
+    Forensics
+  </button>
+</div>
+
+<!-- Challenges Grid -->
+<div class="challenges-grid" id="challengesContainer">
+  <!-- Challenges will be loaded dynamically by CTFd JS -->
+  {% for challenge in challenges %}
+    <div
+      class="challenge-card"
+      data-challenge-id="{{ challenge.id }}"
+      data-category="{{ challenge.category }}"
+      onclick="openChallenge({{ challenge.id }})"
+    >
+      <div>
+        <div class="challenge-category">{{ challenge.category }}</div>
+        <h3 class="challenge-title">{{ challenge.name }}</h3>
+        <p class="challenge-description">{{ challenge.description[:100] }}...</p>
+      </div>
+
+      <div class="challenge-meta">
+        <span class="challenge-score">{{ challenge.value }} pts</span>
+        <div style="display: flex; gap: var(--space-2); align-items: center">
+          {% if challenge.solved %}
+            <span class="challenge-status solved"></span>
+          {% else %}
+            <span class="challenge-status"></span>
+          {% endif %}
+          <span class="challenge-solves">{{ challenge.solves }} solves</span>
+        </div>
+      </div>
+    </div>
+  {% endfor %}
+</div>
+{% endblock %}
+
+{% block scripts %}
+function filterChallenges(category) {
+  const buttons = document.querySelectorAll('.filter-btn');
+  buttons.forEach((btn) => btn.classList.remove('active'));
+
+  const cards = document.querySelectorAll('.challenge-card');
+  cards.forEach((card) => {
+    if (category === '' || card.dataset.category === category) {
+      card.style.display = 'block';
+    } else {
+      card.style.display = 'none';
+    }
+  });
+
+  event.target.classList.add('active');
+}
+
+function openChallenge(challengeId) {
+  window.location.href = '/challenges/' + challengeId;
+}
+{% endblock %}

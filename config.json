@@ -1,0 +1,122 @@
+{
+  "name": "Resecurity Modern",
+  "version": "1.0.0",
+  "description": "A modern CTFd theme inspired by the Resecurity cybersecurity platform design. Features a purple and blue gradient color scheme with clean typography and responsive layout.",
+  "author": "CTFd Theme Developer",
+  "license": "MIT",
+  "homepage": "https://ctfd.io/",
+  "docs": "README.md",
+  "styles": [
+    "static/css/theme.css"
+  ],
+  "scripts": [
+    "static/js/theme.js"
+  ],
+  "preview": {
+    "challenges": "templates/challenges.html",
+    "challenge": "templates/challenge.html",
+    "scoreboard": "templates/scoreboard.html",
+    "login": "templates/login.html",
+    "register": "templates/register.html"
+  },
+  "design_system": {
+    "colors": {
+      "primary": {
+        "dark": "#030303",
+        "light": "#ffffff"
+      },
+      "accent": {
+        "purple": "#8a3ffc",
+        "blue": "#0f62fe",
+        "purple_light": "#c773a6"
+      },
+      "semantic": {
+        "background": "#f5f6fa",
+        "background_secondary": "#ffffff",
+        "text_primary": "#030303",
+        "text_secondary": "#6b7280",
+        "link": "#1671ee"
+      },
+      "status": {
+        "success": "#10b981",
+        "warning": "#f59e0b",
+        "error": "#ef4444",
+        "info": "#3b82f6"
+      }
+    },
+    "typography": {
+      "font_family": "Graphik, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif",
+      "font_family_mono": "SF Mono, Monaco, Cascadia Code, monospace",
+      "sizes": {
+        "xs": "0.75rem",
+        "sm": "0.875rem",
+        "base": "1rem",
+        "lg": "1.125rem",
+        "xl": "1.25rem",
+        "2xl": "1.5rem",
+        "3xl": "1.875rem",
+        "4xl": "2.25rem"
+      }
+    },
+    "spacing": {
+      "unit": "0.25rem",
+      "scales": {
+        "1": "0.25rem",
+        "2": "0.5rem",
+        "3": "0.75rem",
+        "4": "1rem",
+        "6": "1.5rem",
+        "8": "2rem",
+        "12": "3rem"
+      }
+    },
+    "radius": {
+      "sm": "0.25rem",
+      "md": "0.375rem",
+      "lg": "0.5rem",
+      "xl": "0.75rem",
+      "2xl": "1rem",
+      "full": "9999px"
+    },
+    "shadows": {
+      "sm": "0 1px 2px 0 rgba(0, 0, 0, 0.05)",
+      "md": "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
+      "lg": "0 10px 15px -3px rgba(0, 0, 0, 0.1)",
+      "xl": "0 20px 25px -5px rgba(0, 0, 0, 0.1)"
+    }
+  },
+  "features": {
+    "responsive": true,
+    "mobile_first": true,
+    "dark_mode_ready": true,
+    "accessibility": true,
+    "custom_components": [
+      "challenge_cards",
+      "scoreboard_table",
+      "auth_forms",
+      "alert_notifications"
+    ]
+  },
+  "breakpoints": {
+    "mobile": 576,
+    "tablet": 834,
+    "desktop": 1280,
+    "wide": 1380,
+    "ultrawide": 1660
+  },
+  "compatibility": {
+    "ctfd_version": ">=3.0.0",
+    "browsers": [
+      "Chrome 90+",
+      "Firefox 88+",
+      "Safari 14+",
+      "Edge 90+"
+    ]
+  },
+  "customization": {
+    "color_vars": true,
+    "font_customizable": true,
+    "layout_configurable": true,
+    "component_overridable": true
+  }
+}

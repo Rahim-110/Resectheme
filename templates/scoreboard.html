@@ -1,0 +1,319 @@
+{% extends "base.html" %}
+
+{% block title %}Scoreboard - CTFd{% endblock %}
+
+{% block page_description %}Live scoreboard with rankings and team scores{% endblock %}
+
+{% block content %}
+<style>
+  .scoreboard-header {
+    margin-bottom: var(--space-8);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: var(--space-4);
+  }
+
+  .refresh-btn {
+    padding: var(--space-2) var(--space-4);
+    background: var(--color-accent-gradient);
+    color: var(--color-text-inverse);
+    border: none;
+    border-radius: var(--radius-lg);
+    cursor: pointer;
+    font-weight: var(--font-weight-medium);
+    transition: var(--transition-fast);
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+  }
+
+  .refresh-btn:hover {
+    filter: brightness(1.1);
+  }
+
+  .scoreboard-filter {
+    display: flex;
+    gap: var(--space-3);
+    margin-bottom: var(--space-6);
+  }
+
+  .filter-select {
+    padding: var(--space-2) var(--space-3);
+    border: 1px solid var(--color-border-input);
+    border-radius: var(--radius-lg);
+    background: var(--color-background-secondary);
+    color: var(--color-text-primary);
+    font-family: inherit;
+    cursor: pointer;
+  }
+
+  .scoreboard-table-wrapper {
+    background: var(--color-background-secondary);
+    border-radius: var(--radius-xl);
+    border: 1px solid var(--color-border-secondary);
+    overflow: hidden;
+    box-shadow: var(--shadow-md);
+  }
+
+  .scoreboard-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  .scoreboard-table thead {
+    background: var(--color-accent-gradient);
+    color: var(--color-text-inverse);
+    font-weight: var(--font-weight-bold);
+    text-transform: uppercase;
+    font-size: var(--font-size-xs);
+    letter-spacing: 0.05em;
+  }
+
+  .scoreboard-table th {
+    padding: var(--space-4);
+    text-align: left;
+    border-bottom: 1px solid var(--color-border-secondary);
+  }
+
+  .scoreboard-table tbody tr {
+    border-bottom: 1px solid var(--color-divider);
+    transition: var(--transition-fast);
+  }
+
+  .scoreboard-table tbody tr:hover {
+    background: rgba(138, 63, 252, 0.05);
+  }
+
+  .scoreboard-table td {
+    padding: var(--space-4);
+  }
+
+  .rank-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    background: var(--color-accent-gradient);
+    color: var(--color-text-inverse);
+    border-radius: var(--radius-full);
+    font-weight: var(--font-weight-bold);
+    font-size: var(--font-size-sm);
+  }
+
+  .rank-badge.gold {
+    background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+  }
+
+  .rank-badge.silver {
+    background: linear-gradient(135deg, #d1d5db 0%, #9ca3af 100%);
+  }
+
+  .rank-badge.bronze {
+    background: linear-gradient(135deg, #d97706 0%, #b45309 100%);
+  }
+
+  .team-name {
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-text-primary);
+  }
+
+  .team-score {
+    font-size: var(--font-size-lg);
+    font-weight: var(--font-weight-bold);
+    background: var(--color-accent-gradient);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .challenges-solved {
+    color: var(--color-text-secondary);
+    font-size: var(--font-size-sm);
+  }
+
+  .pagination {
+    display: flex;
+    justify-content: center;
+    gap: var(--space-2);
+    margin-top: var(--space-8);
+  }
+
+  .pagination-btn {
+    padding: var(--space-2) var(--space-3);
+    border: 1px solid var(--color-border-default);
+    background: var(--color-background-secondary);
+    cursor: pointer;
+    border-radius: var(--radius-lg);
+    transition: var(--transition-fast);
+  }
+
+  .pagination-btn:hover:not(:disabled) {
+    background: var(--color-accent-gradient);
+    color: var(--color-text-inverse);
+    border-color: transparent;
+  }
+
+  .pagination-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  @media (max-width: 576px) {
+    .scoreboard-header {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+
+    .refresh-btn {
+      width: 100%;
+      justify-content: center;
+    }
+
+    .scoreboard-table {
+      font-size: var(--font-size-sm);
+    }
+
+    .scoreboard-table th,
+    .scoreboard-table td {
+      padding: var(--space-2);
+    }
+
+    .team-name {
+      word-break: break-word;
+    }
+  }
+</style>
+
+<div class="scoreboard-header">
+  <div>
+    <h1>Scoreboard</h1>
+    <p style="color: var(--color-text-secondary); margin-top: var(--space-2)">
+      Live rankings of all teams
+    </p>
+  </div>
+  <button class="refresh-btn" onclick="location.reload()">
+    🔄 Refresh
+  </button>
+</div>
+
+<!-- Filter Options -->
+<div class="scoreboard-filter">
+  <select class="filter-select" id="filterSelect" onchange="filterScoreboard(this.value)">
+    <option value="">All Teams</option>
+    <option value="active">Active Today</option>
+    <option value="recent">Recent Activity</option>
+  </select>
+
+  <input
+    type="search"
+    class="filter-select"
+    id="searchInput"
+    placeholder="Search teams..."
+    onkeyup="searchScoreboard(this.value)"
+    style="border: 1px solid var(--color-border-input); width: 250px"
+  />
+</div>
+
+<!-- Scoreboard Table -->
+<div class="scoreboard-table-wrapper">
+  <table class="scoreboard-table">
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Team Name</th>
+        <th>Score</th>
+        <th>Challenges Solved</th>
+        <th>Last Activity</th>
+      </tr>
+    </thead>
+    <tbody id="scoreboardBody">
+      {% for team in standings %}
+        <tr data-team-id="{{ team.id }}" data-team-name="{{ team.name | lower }}">
+          <td>
+            {% if loop.index == 1 %}
+              <span class="rank-badge gold">🥇</span>
+            {% elif loop.index == 2 %}
+              <span class="rank-badge silver">🥈</span>
+            {% elif loop.index == 3 %}
+              <span class="rank-badge bronze">🥉</span>
+            {% else %}
+              <span class="rank-badge">{{ loop.index }}</span>
+            {% endif %}
+          </td>
+          <td class="team-name">
+            <a href="{{ url_for('teams.view', team_id=team.id) }}" style="color: inherit">
+              {{ team.name }}
+            </a>
+          </td>
+          <td class="team-score">{{ team.score }}</td>
+          <td class="challenges-solved">
+            {{ team.solves }} / {{ total_challenges }}
+          </td>
+          <td class="challenges-solved">
+            {{ team.last_activity | humanize if team.last_activity else 'N/A' }}
+          </td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<!-- Pagination -->
+<div class="pagination">
+  <button class="pagination-btn" onclick="previousPage()" id="prevBtn" disabled>
+    ← Previous
+  </button>
+  <span id="pageIndicator" style="display: flex; align-items: center; padding: 0 var(--space-4)">
+    Page 1
+  </span>
+  <button class="pagination-btn" onclick="nextPage()" id="nextBtn">
+    Next →
+  </button>
+</div>
+{% endblock %}
+
+{% block scripts %}
+let currentPage = 1;
+const itemsPerPage = 20;
+
+function filterScoreboard(filter) {
+  console.log('Filter:', filter);
+  // Implementation would depend on CTFd API
+}
+
+function searchScoreboard(query) {
+  const rows = document.querySelectorAll('#scoreboardBody tr');
+  rows.forEach((row) => {
+    const teamName = row.dataset.teamName;
+    if (teamName.includes(query.toLowerCase())) {
+      row.style.display = '';
+    } else {
+      row.style.display = 'none';
+    }
+  });
+}
+
+function nextPage() {
+  currentPage++;
+  updatePagination();
+}
+
+function previousPage() {
+  if (currentPage > 1) {
+    currentPage--;
+  }
+  updatePagination();
+}
+
+function updatePagination() {
+  document.getElementById('pageIndicator').textContent = `Page ${currentPage}`;
+  const prevBtn = document.getElementById('prevBtn');
+  const nextBtn = document.getElementById('nextBtn');
+
+  prevBtn.disabled = currentPage === 1;
+  // nextBtn.disabled would be set based on total pages
+}
+{% endblock %}

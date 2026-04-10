@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
+    <title>
+      {% block title %}
+        CTFd
+      {% endblock %}
+    </title>
+    <meta
+      name="description"
+      content="{% block page_description %}Cybersecurity Capture The Flag Competition{% endblock %}"
+    />
+
+    <!-- Favicon -->
+    <link rel="shortcut icon" href="{{ url_for('views.static', filename='img/favicon.ico') }}" />
+
+    <!-- CTFd Stylesheets -->
+    <link
+      rel="stylesheet"
+      href="{{ url_for('views.static_theme', path='/css/theme.css') }}"
+    />
+
+    <!-- Custom Challenge Styles -->
+    <style>
+      {% block css %}{% endblock %}
+    </style>
+
+    {% block head %}{% endblock %}
+  </head>
+
+  <body>
+    <div id="ctfd-app">
+      <!-- Navigation -->
+      <nav class="navbar">
+        <div class="navbar-content">
+          <a class="navbar-brand" href="/">
+            <span>CTFd</span>
+          </a>
+
+          <ul class="navbar-nav">
+            {% if authed %}
+              <li>
+                <a href="{{ url_for('challenges.view') }}">Challenges</a>
+              </li>
+              <li>
+                <a href="{{ url_for('scoreboard.view') }}">Scoreboard</a>
+              </li>
+              {% if is_admin %}
+                <li>
+                  <a href="{{ url_for('admin.view') }}">Admin</a>
+                </li>
+              {% endif %}
+              <li>
+                <a href="{{ url_for('auth.logout') }}">Logout</a>
+              </li>
+            {% else %}
+              <li>
+                <a href="{{ url_for('auth.login') }}">Login</a>
+              </li>
+              <li>
+                <a href="{{ url_for('auth.register') }}">Register</a>
+              </li>
+            {% endif %}
+          </ul>
+        </div>
+      </nav>
+
+      <!-- Content -->
+      <main class="container" style="padding: var(--space-8) var(--space-4); min-height: calc(100vh - 200px)">
+        <!-- Flash Messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            {% for category, message in messages %}
+              <div class="alert alert-{{ 'success' if category == 'success' else 'error' if category == 'error' else 'info' }}">
+                <span>{{ message }}</span>
+              </div>
+            {% endfor %}
+          {% endif %}
+        {% endwith %}
+
+        <!-- Page Content Block -->
+        {% block content %}{% endblock %}
+      </main>
+
+      <!-- Footer -->
+      <footer style="background: var(--color-primary-dark); color: var(--color-text-inverse); padding: var(--space-8) var(--space-4); text-align: center; margin-top: var(--space-12)">
+        <div class="container">
+          <p style="margin: 0">
+            &copy; 2024 CTFd. Powered by
+            <a
+              href="https://ctfd.io/"
+              target="_blank"
+              style="color: var(--color-accent-purple)"
+              >CTFd</a
+            >
+          </p>
+        </div>
+      </footer>
+    </div>
+
+    <!-- CTFd Scripts (provided by CTFd framework) -->
+    {% if request.endpoint and 'static' not in request.endpoint %}
+      <script src="{{ url_for('views.static', filename='js/ctf.js') }}"></script>
+    {% endif %}
+
+    <!-- Theme Scripts -->
+    <script src="{{ url_for('views.static_theme', path='/js/theme.js') }}"></script>
+
+    <!-- Inline Scripts -->
+    <script>
+      {% block scripts %}{% endblock %}
+    </script>
+  </body>
+</html>

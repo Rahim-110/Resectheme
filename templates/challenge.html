@@ -1,0 +1,348 @@
+{% extends "base.html" %}
+
+{% block title %}{{ challenge.name }} - CTFd{% endblock %}
+
+{% block page_description %}{{ challenge.name }} Challenge{% endblock %}
+
+{% block content %}
+<style>
+  .challenge-container {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: var(--space-8);
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .challenge-details {
+    background: var(--color-background-secondary);
+    border: 1px solid var(--color-border-secondary);
+    border-radius: var(--radius-xl);
+    padding: var(--space-8);
+  }
+
+  .challenge-sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-6);
+  }
+
+  .challenge-info-card {
+    background: var(--color-background-secondary);
+    border: 1px solid var(--color-border-secondary);
+    border-radius: var(--radius-xl);
+    padding: var(--space-6);
+  }
+
+  .challenge-info-label {
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-bold);
+    text-transform: uppercase;
+    color: var(--color-text-tertiary);
+    margin-bottom: var(--space-2);
+    letter-spacing: 0.05em;
+  }
+
+  .challenge-info-value {
+    font-size: var(--font-size-2xl);
+    font-weight: var(--font-weight-bold);
+    background: var(--color-accent-gradient);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .challenge-status-badge {
+    display: inline-block;
+    padding: var(--space-2) var(--space-4);
+    background: var(--color-success);
+    color: var(--color-text-inverse);
+    border-radius: var(--radius-full);
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-semibold);
+  }
+
+  .challenge-content {
+    margin-bottom: var(--space-6);
+  }
+
+  .challenge-content h2 {
+    font-size: var(--font-size-2xl);
+    font-weight: var(--font-weight-bold);
+    margin-bottom: var(--space-4);
+  }
+
+  .challenge-files {
+    margin: var(--space-6) 0;
+    padding: var(--space-4);
+    background: var(--color-background);
+    border-radius: var(--radius-lg);
+  }
+
+  .challenge-files h3 {
+    margin-bottom: var(--space-3);
+    font-size: var(--font-size-lg);
+  }
+
+  .file-list {
+    list-style: none;
+  }
+
+  .file-item {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    padding: var(--space-3);
+    border-bottom: 1px solid var(--color-divider);
+  }
+
+  .file-item:last-child {
+    border-bottom: none;
+  }
+
+  .file-icon {
+    width: 24px;
+    height: 24px;
+    background: var(--color-accent-gradient);
+    border-radius: var(--radius-sm);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--color-text-inverse);
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-bold);
+  }
+
+  .file-link {
+    flex-grow: 1;
+    color: var(--color-link);
+    text-decoration: none;
+    font-weight: var(--font-weight-medium);
+    word-break: break-all;
+  }
+
+  .file-link:hover {
+    color: var(--color-link-hover);
+  }
+
+  .flag-form {
+    border-top: 1px solid var(--color-divider);
+    padding-top: var(--space-6);
+    margin-top: var(--space-6);
+  }
+
+  .flag-form h3 {
+    margin-bottom: var(--space-4);
+  }
+
+  .flag-input-group {
+    display: flex;
+    gap: var(--space-2);
+    margin-top: var(--space-4);
+  }
+
+  .flag-input-group input {
+    flex-grow: 1;
+  }
+
+  .flag-input-group .btn {
+    padding: var(--space-3) var(--space-6);
+  }
+
+  @media (max-width: 834px) {
+    .challenge-container {
+      grid-template-columns: 1fr;
+    }
+
+    .challenge-details {
+      padding: var(--space-4);
+    }
+
+    .challenge-sidebar {
+      flex-direction: row;
+      flex-wrap: wrap;
+    }
+
+    .challenge-info-card {
+      flex: 1;
+      min-width: 150px;
+    }
+  }
+
+  @media (max-width: 576px) {
+    .challenge-details {
+      padding: var(--space-3);
+    }
+
+    .flag-input-group {
+      flex-direction: column;
+    }
+
+    .flag-input-group .btn {
+      width: 100%;
+    }
+  }
+</style>
+
+<div style="margin-bottom: var(--space-4)">
+  <a href="{{ url_for('challenges.view') }}" style="color: var(--color-link)">
+    ← Back to Challenges
+  </a>
+</div>
+
+<div class="challenge-container">
+  <!-- Challenge Content -->
+  <div class="challenge-details">
+    <div style="display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: var(--space-4)">
+      <div>
+        <span class="challenge-category" style="display: inline-block; margin-bottom: var(--space-3)">
+          {{ challenge.category }}
+        </span>
+        <h1 style="margin: 0; font-size: var(--font-size-3xl)">{{ challenge.name }}</h1>
+      </div>
+      {% if solved %}
+        <span class="challenge-status-badge">✓ Solved</span>
+      {% endif %}
+    </div>
+
+    <!-- Challenge Description -->
+    <div class="challenge-content">
+      <p style="color: var(--color-text-secondary); line-height: var(--line-height-relaxed)">
+        {{ challenge.description }}
+      </p>
+    </div>
+
+    <!-- Challenge Files -->
+    {% if challenge.files %}
+      <div class="challenge-files">
+        <h3>Files</h3>
+        <ul class="file-list">
+          {% for file in challenge.files %}
+            <li class="file-item">
+              <div class="file-icon">📄</div>
+              <a href="{{ file.url }}" class="file-link" download>
+                {{ file.name }}
+              </a>
+            </li>
+          {% endfor %}
+        </ul>
+      </div>
+    {% endif %}
+
+    <!-- Flag Submission Form -->
+    <div class="flag-form">
+      <h3>Submit Flag</h3>
+      <p style="color: var(--color-text-secondary); font-size: var(--font-size-sm)">
+        Submit your answer to complete this challenge
+      </p>
+
+      <form id="submit-flag-form" method="POST">
+        <div class="flag-input-group">
+          <input
+            type="text"
+            id="flag-input"
+            name="flag"
+            placeholder="Flag format: ctf{...}"
+            required
+            style="padding: var(--space-3) var(--space-4); border-radius: var(--radius-lg)"
+          />
+          <button type="submit" class="btn btn-primary">
+            Submit
+          </button>
+        </div>
+      </form>
+
+      <div id="flag-message" style="margin-top: var(--space-4); display: none"></div>
+    </div>
+  </div>
+
+  <!-- Sidebar -->
+  <div class="challenge-sidebar">
+    <!-- Points Card -->
+    <div class="challenge-info-card">
+      <div class="challenge-info-label">Points</div>
+      <div class="challenge-info-value">{{ challenge.value }}</div>
+    </div>
+
+    <!-- Solves Card -->
+    <div class="challenge-info-card">
+      <div class="challenge-info-label">Solves</div>
+      <div class="challenge-info-value">{{ challenge.solves }}</div>
+    </div>
+
+    <!-- Attempts Card -->
+    <div class="challenge-info-card">
+      <div class="challenge-info-label">Your Attempts</div>
+      <div class="challenge-info-value">{{ user_attempts | default(0) }}</div>
+    </div>
+
+    <!-- Hints Card -->
+    {% if challenge.hints %}
+      <div class="challenge-info-card">
+        <div class="challenge-info-label">Hints</div>
+        <div style="display: flex; flex-direction: column; gap: var(--space-2)">
+          {% for hint in challenge.hints %}
+            <details
+              style="font-size: var(--font-size-sm); color: var(--color-text-secondary)"
+            >
+              <summary style="cursor: pointer; color: var(--color-accent-purple); font-weight: var(--font-weight-medium)">
+                Hint {{ loop.index }}
+              </summary>
+              <p style="margin-top: var(--space-2); padding: var(--space-2) 0">
+                {{ hint.content }}
+              </p>
+            </details>
+          {% endfor %}
+        </div>
+      </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+document.getElementById('submit-flag-form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+
+  const flagInput = document.getElementById('flag-input');
+  const messageDiv = document.getElementById('flag-message');
+  const flagValue = flagInput.value.trim();
+
+  if (!flagValue) {
+    return;
+  }
+
+  try {
+    const response = await fetch('/api/v1/challenges/{{ challenge.id }}/attempts', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'CSRF-Token': document.querySelector('meta[name="csrf-token"]')?.content,
+      },
+      body: JSON.stringify({ submission: flagValue }),
+    });
+
+    const data = await response.json();
+
+    messageDiv.style.display = 'block';
+
+    if (data.status === 'correct') {
+      messageDiv.className = 'alert alert-success';
+      messageDiv.innerHTML = '✓ Correct! You have solved this challenge.';
+      flagInput.disabled = true;
+      document.querySelector('button[type="submit"]').disabled = true;
+      setTimeout(() => {
+        location.reload();
+      }, 2000);
+    } else {
+      messageDiv.className = 'alert alert-error';
+      messageDiv.innerHTML = '✗ Incorrect flag. Try again!';
+      flagInput.value = '';
+    }
+  } catch (err) {
+    messageDiv.className = 'alert alert-error';
+    messageDiv.innerHTML = 'Error submitting flag. Please try again.';
+    messageDiv.style.display = 'block';
+  }
+});
+{% endblock %}
